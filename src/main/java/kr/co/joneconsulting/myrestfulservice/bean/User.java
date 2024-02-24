@@ -1,5 +1,6 @@
 package kr.co.joneconsulting.myrestfulservice.bean;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -18,4 +19,10 @@ public class User {
 
     @Past(message = "등록일은 미래 날짜를 입력할실 수 없습니다.")
     private Date joinDate;
+
+    // 외부에 보이지 않게 할 수 있다.
+    @JsonIgnore
+    private String password;
+    @JsonIgnore
+    private String ssn;
 }
