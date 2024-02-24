@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import kr.co.joneconsulting.myrestfulservice.bean.AdminUser;
+import kr.co.joneconsulting.myrestfulservice.bean.AdminUserV2;
 import kr.co.joneconsulting.myrestfulservice.bean.User;
 import kr.co.joneconsulting.myrestfulservice.dao.UserDaoService;
 import kr.co.joneconsulting.myrestfulservice.exception.UserNotFoundException;
@@ -73,4 +74,32 @@ public class AdminUserController {
 
         return mapping;
     }
+
+
+    //    @GetMapping("/v2/users/{id}")
+//    @GetMapping(value = "/users/{id}", params = "version=2")
+//    @GetMapping(value = "/users/{id}", headers = "X-API-VERSION=2")
+    @GetMapping(value = "/users/{id}", produces = "application/vnd.company.appv2+json")
+    public MappingJacksonValue retrieveUserV2(@PathVariable int id) {
+        User user = service.findOne(id);
+
+        if (user == null) {
+            throw new UserNotFoundException(String.format("ID[%s] not found", id));
+        }
+
+        AdminUserV2 adminUserV2 = new AdminUserV2();
+        BeanUtils.copyProperties(user, adminUserV2); // id, name, joinDate, ssn
+        adminUserV2.setGrade("VIP"); // grade
+
+        SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter
+                .filterOutAllExcept("id", "name", "joinDate", "grade");
+
+        FilterProvider filters = new SimpleFilterProvider().addFilter("UserInfoV2", filter);
+
+        MappingJacksonValue mapping = new MappingJacksonValue(adminUserV2);
+        mapping.setFilters(filters);
+
+        return mapping;
+    }
 }
+
